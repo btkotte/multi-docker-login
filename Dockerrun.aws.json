@@ -1,0 +1,111 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions": [
+        {
+            "name": "mysql-login-db",
+            "image": "mysql:5.7",
+            "hostname": "mysql-login-db",
+            "essential": true,
+            "environment": [
+                {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "password"
+                },
+                {
+                    "name": "MYSQL_DATABASE",
+                    "value": "logindb"
+                }
+            ],
+            "memory": 500
+        },
+        {
+            "name": "login-app-1",
+            "image": "mrkotte/loginapp",
+            "hostname": "login-app-1",
+            "essential": false,
+            "environment": [
+                {
+                    "name": "WAIT_HOSTS",
+                    "value": "mysql-login-db:3306"
+                },
+                {
+                    "name": "WAIT_HOSTS_TIMEOUT",
+                    "value": "60"
+                },
+                {
+                    "name": "MSHOST",
+                    "value": "mysql-login-db"
+                },
+                {
+                    "name": "MSDATABASE",
+                    "value": "logindb"
+                },
+                {
+                    "name": "MSUSER",
+                    "value": "root"
+                },
+                {
+                    "name": "MSPASSWORD",
+                    "value": "password"
+                }
+            ],
+            "links": [
+                "mysql-login-db"
+            ],
+            "memory": 128
+        },
+        {
+            "name": "login-app-2",
+            "image": "mrkotte/loginapp",
+            "hostname": "login-app-2",
+            "essential": false,
+            "environment": [
+                {
+                    "name": "WAIT_HOSTS",
+                    "value": "mysql-login-db:3306"
+                },
+                {
+                    "name": "WAIT_HOSTS_TIMEOUT",
+                    "value": "60"
+                },
+                {
+                    "name": "MSHOST",
+                    "value": "mysql-login-db"
+                },
+                {
+                    "name": "MSDATABASE",
+                    "value": "logindb"
+                },
+                {
+                    "name": "MSUSER",
+                    "value": "root"
+                },
+                {
+                    "name": "MSPASSWORD",
+                    "value": "password"
+                }
+            ],
+            "links": [
+                "mysql-login-db"
+            ],
+            "memory": 128
+        },
+        {
+            "name": "login-app-lb",
+            "image": "mrkotte/loginapp-nginx",
+            "hostname": "login-app-lb",
+            "essential": true,
+            "portMappings": [
+                {
+                    "hostPort": 80,
+                    "containerPort": 80
+                }
+            ],
+            "links": [
+                "login-app-1",
+                "login-app-2"
+            ],
+            "memory": 128
+        }
+    ]
+}
