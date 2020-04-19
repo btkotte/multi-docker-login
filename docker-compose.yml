@@ -1,0 +1,49 @@
+version: '3'
+services:
+    mysql-login-db:
+        image: mysql:5.7
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_DATABASE: logindb
+        expose:
+            - '3306'
+
+    login-app-1:
+        depends_on: 
+            - mysql-login-db
+        build:
+            context: ./loginapp
+            dockerfile: Dockerfile
+        expose:
+            - '9999'
+        environment:
+            WAIT_HOSTS: mysql-login-db:3306
+            MSHOST: mysql-login-db
+            MSDATABASE: logindb 
+            MSUSER: root
+            MSPASSWORD: password
+
+    login-app-2:
+        depends_on: 
+            - mysql-login-db
+        build:
+            context: ./loginapp
+            dockerfile: Dockerfile
+        expose:
+            - '9999'
+        environment:
+            WAIT_HOSTS: mysql-login-db:3306
+            MSHOST: mysql-login-db
+            MSDATABASE: logindb 
+            MSUSER: root
+            MSPASSWORD: password
+
+    login-app-lb:
+        depends_on: 
+            - login-app-1
+            - login-app-2
+        build:
+            context: ./nginx
+            dockerfile: Dockerfile
+        ports:
+            - '9999:80'
